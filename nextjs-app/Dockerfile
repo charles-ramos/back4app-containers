@@ -1,18 +1,30 @@
-FROM node:16-alpine AS builder
-# Set working directory
-WORKDIR /app
-# Copy all files from current directory to working dir in image
-COPY . .
-# install node modules and build assets
-RUN yarn install && yarn build
+FROM node:16-alpine
 
-# nginx state for serving content
-FROM nginx:alpine
-# Set working directory to nginx asset directory
-WORKDIR /usr/share/nginx/html
-# Remove default nginx static assets
-RUN rm -rf ./*
-# Copy static assets from builder stage
-COPY --from=builder /app/.next .
-# Containers run nginx with global directives and daemon off
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+# Set working directory
+WORKDIR /usr/app
+
+# Install PM2 globally
+RUN npm install --global pm2
+
+# Copy "package.json" and "package-lock.json" before other files
+# Utilise Docker cache to save re-installing dependencies if unchanged
+COPY ./package*.json ./
+
+# Install dependencies
+RUN npm install --production
+
+# Copy all files
+COPY ./ ./
+
+# Build app
+RUN npm run build
+
+# Expose the listening port
+EXPOSE 3000
+
+# Run container as non-root (unprivileged) user
+# The "node" user is provided in the Node.js Alpine base image
+USER node
+
+# Launch app with PM2
+CMD [ "pm2-runtime", "start", "npm", "--", "start" ]
