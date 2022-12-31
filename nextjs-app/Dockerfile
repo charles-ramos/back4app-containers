@@ -1,30 +1,31 @@
-FROM node:alpine
+FROM node:16.17.0-alpine3.15
 
-# Set working directory
-WORKDIR /usr/app
+RUN apk add --no-cache libc6-compat
+RUN npm i -g npm
 
-# Install PM2 globally
-RUN npm install --global pm2
-
-# Copy "package.json" and "package-lock.json" before other files
-# Utilise Docker cache to save re-installing dependencies if unchanged
-COPY ./package*.json ./
-
-# Install dependencies
-RUN npm install --production
-
-# Copy all files
-COPY ./ ./
-
-# Build app
-RUN npm run build
-
-# Expose the listening port
 EXPOSE 3000
 
-# Run container as non-root (unprivileged) user
-# The "node" user is provided in the Node.js Alpine base image
-USER node
+ENV PORT 3000
+ENV NODE_ENV production
 
-# Launch app with PM2
-CMD [ "pm2-runtime", "start", "npm", "--", "start" ]
+WORKDIR /home/nextjs/app
+
+COPY package.json .
+
+RUN npm install --omit=optional
+RUN npx browserslist@latest --update-db
+RUN npx next telemetry disable
+
+# need to install linux specific swc builds
+RUN npm install -D @swc/cli @swc/core
+
+COPY . .
+
+RUN npm run build
+
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+USER nextjs
+
+CMD [ "npm", "start" ]
