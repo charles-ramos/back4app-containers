@@ -4,6 +4,9 @@ FROM node:16-alpine as builder
 # copy the package.json to install dependencies
 COPY package.json package-lock.json ./
 
+RUN npm config set fetch-retry-mintimeout 20000
+RUN npm config set fetch-retry-maxtimeout 120000
+
 # Install the dependencies and make the folder
 RUN npm install --omit=dev && mkdir /nextjs-ui && mv ./node_modules ./nextjs-ui
 
