@@ -13,6 +13,7 @@ function onConnection(ws, req) {
     ws.on('message', data => onMessage(ws, data));
     ws.on('error', error => onError(ws, error));
     console.log(`onConnection`);
+    ws.send('Hi there, I am a WebSocket server');
 }
  
 module.exports = (server) => {

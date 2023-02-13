@@ -3,7 +3,8 @@ const router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.status(200).send({ result: "Testing Back4App Containers! "});
+  const date = new Date().toISOString();
+  res.status(200).send({ result: "Testing Back4App Containers! Last Restart: ", date});
 });
 
 module.exports = router;
