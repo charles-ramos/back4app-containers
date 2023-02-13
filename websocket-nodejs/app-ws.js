@@ -6,7 +6,7 @@ function onError(ws, err) {
  
 function onMessage(ws, data) {
     console.log(`onMessage: ${data}`);
-    ws.send(`recebido!`);
+    ws.send(`received!`);
 }
  
 function onConnection(ws, req) {
