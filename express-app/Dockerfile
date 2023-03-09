@@ -6,6 +6,6 @@ COPY . /app
 
 RUN npm install --omit=dev
 
-EXPOSE 3000
+EXPOSE 5000
 
 CMD ["npm", "start"]
